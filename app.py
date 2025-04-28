@@ -6,6 +6,10 @@ import random
 import json
 from gtts import gTTS
 from main import evaluate_pronunciation, load_word_list, save_word_list, generate_therapy_words
+from faster_whisper import WhisperModel
+
+# Load model once
+whisper_model = WhisperModel("base", device="cpu")  # or "small", "medium"
 
 app = Flask(__name__)
 
@@ -73,6 +77,7 @@ def practice():
 
 
 @app.route('/submit', methods=['POST'])
+@app.route('/submit', methods=['POST'])
 def submit():
     global streak, correct_words, incorrect_words, session_results
     audio_data = request.json.get('audio')
@@ -85,13 +90,8 @@ def submit():
         f.write(audio_bytes)
 
     try:
-        with open(temp_audio_path, 'rb') as audio_file:
-            transcription = groq.audio.transcriptions.create(
-                file=audio_file,
-                model="whisper-large-v3",
-                language="en"
-            )
-        spoken = transcription.text.strip().lower()
+        segments, info = whisper_model.transcribe(temp_audio_path, language="en")
+        spoken = " ".join(segment.text for segment in segments).strip().lower()
     except Exception as e:
         print(f"Transcription error: {e}")
         return jsonify({'error': 'Transcription failed'}), 500
@@ -127,6 +127,7 @@ def submit():
         'spoken': spoken,
         'result': result
     })
+
 
 
 @app.route('/reset', methods=['POST'])

@@ -28,8 +28,10 @@ def evaluate_pronunciation(target, spoken):
     Examples:
     - Word: apple, Said: appel pie, Aple is, Opple fruit, apul yum → PASS
     - Word: pin, Said: I spin fast → PASS
+    - Word: dog, Said: Dawg → PASS
     - Word: apple, Said: oranges bananas, anul, annele, apend → FAIL
     Consider that the kids have Down syndrome or speech delay, so be very lenient.
+    However if the pronunciation of the word and user submitted  word is too different you may fail them
     Only respond with 1 word: either 'PASS' or 'FAIL'. Do not add any extra output.
     """
 
